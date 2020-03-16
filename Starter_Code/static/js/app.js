@@ -77,12 +77,41 @@ d3.json('samples.json').then((importedData)=>{
             },
             text: bubbleInit.otu_labels,
         }];
-        let layout1 = {
-            xaxis:{title: `OTU ID: ${datasetType}`}
-        };
-        Plotly.newPlot('bubble', trace1, layout1);   
+        Plotly.newPlot('bubble', trace1);   
         //table
         addData('940');
+        // gauge
+        let trace2 = [{
+            type: "indicator",
+            mode: "gauge+number",
+            text:['0-1','1-2','2-3','3-4','4-5','5-6','6-7','7-8','8-9'],
+            value: 2,
+            title: { text: "Scrubs per Week", font: { size: 24 } },
+            // bar: { color: "white"},
+            gauge: {
+                axis: { range: [null, 9] },
+                bgcolor: "white",
+                borderwidth: 0,
+                steps: [
+                { range: [0, 1], color: "whitesmoke" },
+                { range: [1, 2], color: "mintcream" },
+                { range: [2, 3], color: "palegreen" },
+                { range: [3, 4], color: "mediumseagreen" },
+                { range: [4, 5], color: "seagreen" },
+                { range: [5, 6], color: "darkolivegreen" },
+                { range: [6, 7], color: "forestgreen" },
+                { range: [7, 8], color: "green" },
+                { range: [8, 9], color: "darkgreen" },
+                ]
+            }   
+        }];
+        let layout2 = {
+            width: 400,
+            height: 600,
+            margin: { t: 25, r: 25, l: 25, b: 25 },
+          };
+        Plotly.newPlot('gauge', trace2, layout2);
+        
     }
     //update page
     function update(){
@@ -92,7 +121,7 @@ d3.json('samples.json').then((importedData)=>{
         info = d3.select('#sample-metadata').append('ul');
         addData(datasetType);
         let newData = sortData(datasetType);
-        console.log(newData);
+        // console.log(newData);
         Plotly.restyle('bar', 'x',[newData.map(obj => obj.value)]);
         Plotly.restyle('bar','y',[newData.map(obj => obj.id)]);
         Plotly.restyle('bar','label',[newData.map(obj => obj.id)]);
@@ -101,6 +130,11 @@ d3.json('samples.json').then((importedData)=>{
             if (sample.id === datasetType) {
                 Plotly.restyle('bubble', 'x',[sample.otu_ids],'y',[sample.sample_values],'color',[sample.otu_ids],'size',[sample.sample_values],'text',[sample.otu_labels]);
             };
+        });
+        demographicData.forEach(person => {
+            if (person.id === parseInt(datasetType)) {
+                Plotly.restyle('gauge', 'value',[person.wfreq]);
+            }
         });
     }
     d3.select('#selDataset').on('change',update);
